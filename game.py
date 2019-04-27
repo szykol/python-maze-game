@@ -3,6 +3,7 @@ import random
 import numpy as np
 
 from plate import Plate
+from player import Player
 
 pygame.init()
 screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
@@ -33,8 +34,13 @@ def spawn_simple_maze():
     return plates
 
 plates = spawn_simple_maze()
-
+player = Player(plates[1, 1].rect.center)
 all_sprites.add(plates)
+all_sprites.add(player)
+
+
+
+
 done = False
 while not done:
     for event in pygame.event.get():
