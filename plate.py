@@ -8,8 +8,8 @@ class Plate(pygame.sprite.Sprite):
     SIZE = (60,60)
     def __init__(self, position, type=ROCK, visible=False):
         self.type = type
-        self.rect = position
         self.visible = visible
+        self.rect.left, self.rect.top = position
         pygame.sprite.Sprite.__init__(self)
 
     @property
@@ -25,3 +25,5 @@ class Plate(pygame.sprite.Sprite):
             image_path += Plate.BLACK
 
         self.image = pygame.image.load(image_path)
+        if not hasattr(self, 'rect'):
+            self.rect = self.image.get_rect()
