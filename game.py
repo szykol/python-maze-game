@@ -5,14 +5,6 @@ import numpy as np
 from plate import Plate
 from player import Player
 
-pygame.init()
-screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
-
-clock = pygame.time.Clock()
-
-all_sprites = pygame.sprite.Group()
-p = Plate((100, 200), Plate.YELLOW, visible=True)
-
 def spawn_simple_maze():
     plates = np.empty((8, 8), dtype=Plate)
     yellow = [
@@ -29,32 +21,79 @@ def spawn_simple_maze():
             t = Plate.ROCK
             if (x, y) in yellow:
                 t = Plate.YELLOW
-            plates[x, y] = Plate((x * Plate.SIZE[0], y * Plate.SIZE[1]), type=t, visible=True)
+            plates[x, y] = Plate((x * Plate.SIZE[0], y * Plate.SIZE[1]), type=t)
 
     return plates
 
-plates = spawn_simple_maze()
-player = Player(plates[1, 1].rect.center)
-all_sprites.add(plates)
-all_sprites.add(player)
+class Game:
+    def __init__(self):
+        self.clock = pygame.time.Clock()
+        self.done = False
+
+        self.plates = spawn_simple_maze()
+        self.player_index = (7, 1)
+        self.player = Player(self.plates[self.player_index].rect.center)
+        
+        self.screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
+        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites.add(self.plates)
+        self.all_sprites.add(self.player)
+
+    def draw(self):
+        self.screen.fill((0,0,0))
+        self.all_sprites.draw(self.screen)
+        pygame.display.flip()
+
+    def update(self):
+        self._handle_keys()
+        
+        self._show_neighb_plates()
+
+    def run(self):
+        while not self.done:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.done = True
+
+            self.update()
+            self.draw()
+
+            self.clock.tick(10)
+
+    def _handle_keys(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_q]:
+            self.done = True
+
+        if keys[pygame.K_RIGHT]:
+            self.player_index = self.player_index[0] + 1, self.player_index[1]
+            self.player.direction = Player.RIGHT
+        if keys[pygame.K_DOWN]:
+            self.player_index = self.player_index[0], self.player_index[1] + 1
+            self.player.direction = Player.DOWN
+        if keys[pygame.K_LEFT]:
+            self.player_index = self.player_index[0] - 1, self.player_index[1]
+            self.player.direction = Player.LEFT
+        if keys[pygame.K_UP]:
+            self.player_index = self.player_index[0], self.player_index[1] - 1
+            self.player.direction = Player.UP
+
+
+        self.player.rect.center = self.plates[self.player_index].rect.center
 
 
 
-
-done = False
-while not done:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_q]:
-        done = True
+    def _show_neighb_plates(self):
+        x, y = self.player_index
+        
+        slice = self.plates[x-1 if x > 0 else x:x+2, y-1 if y > 0 else y:y+2]
+        for y in range(slice.shape[1]):
+            for x in range(slice.shape[0]):
+                slice[x, y].visible = True
 
 
-    screen.fill((0,0,0))
-
-    all_sprites.draw(screen)
-
-    pygame.display.flip()
-    clock.tick(60)
+if __name__ == "__main__":
+    pygame.init()
+    
+    g = Game()
+    g.run()
