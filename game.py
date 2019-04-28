@@ -6,7 +6,7 @@ from plate import Plate
 from player import Player
 from threading import Timer
 
-def spawn_simple_maze():
+def spawn_simple_maze(pos):
     plates = np.empty((8, 8), dtype=Plate)
     yellow = [
         (0, 1), (1,1), (2,1), (3,1), (4, 1), (6,1),
@@ -22,7 +22,7 @@ def spawn_simple_maze():
             t = Plate.ROCK
             if (x, y) in yellow:
                 t = Plate.YELLOW
-            plates[x, y] = Plate((x * Plate.SIZE[0], y * Plate.SIZE[1]), type=t)
+            plates[x, y] = Plate((x * Plate.SIZE[0] + pos[0], y * Plate.SIZE[1] + pos[1]), type=t)
 
     return plates
 
@@ -30,10 +30,15 @@ class Game:
     def __init__(self):
         self.clock = pygame.time.Clock()
         self.done = False
-        self.screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
-        self.plates = spawn_simple_maze()
+        self.screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
+        self.plates = spawn_simple_maze((400, 200))
+        
+        background = pygame.sprite.Sprite()
+        background.image = pygame.image.load('img/maze.png')
+        background.rect = background.image.get_rect()
         
         self.all_sprites = pygame.sprite.Group()
+        self.all_sprites.add(background)
         self.all_sprites.add(self.plates)
         self._setup()
         
@@ -108,7 +113,7 @@ class Game:
             self.player.rect.center = self.plates[self.player_index].rect.center
             self._show_neighb_plates()
             self.player.direction = direction
-            
+
             self.can_move = False
             Timer(0.25, self._enable_move).start()
 
