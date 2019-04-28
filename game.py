@@ -62,28 +62,36 @@ class Game:
     def _handle_keys(self):
         keys = pygame.key.get_pressed()
         
-        update_pos = True
+        next_move = None
         if keys[pygame.K_q]:
             self.done = True
         elif keys[pygame.K_RIGHT]:
-            self.player_index = self.player_index[0] + 1, self.player_index[1]
+            next_move = (self.player_index[0] + 1, self.player_index[1])
             self.player.direction = Player.RIGHT
         elif keys[pygame.K_DOWN]:
-            self.player_index = self.player_index[0], self.player_index[1] + 1
+            next_move = (self.player_index[0], self.player_index[1] + 1)
             self.player.direction = Player.DOWN
         elif keys[pygame.K_LEFT]:
-            self.player_index = self.player_index[0] - 1, self.player_index[1]
+            next_move = (self.player_index[0] - 1, self.player_index[1])
             self.player.direction = Player.LEFT
         elif keys[pygame.K_UP]:
-            self.player_index = self.player_index[0], self.player_index[1] - 1
+            next_move = (self.player_index[0], self.player_index[1] - 1)
             self.player.direction = Player.UP
-        else:
-            update_pos = False
 
-        if update_pos:
+        if next_move is not None:
+            self._move_player(next_move)
+
+
+    def _move_player(self, next_pos):
+        if (next_pos[0] < 0 or next_pos[0] >= self.plates.shape[0]
+            or next_pos[1] < 0 or next_pos[1] >= self.plates.shape[1]):
+            return
+
+        if self.plates[next_pos].type == Plate.YELLOW:
+            self.player_index = next_pos
             self.player.rect.center = self.plates[self.player_index].rect.center
             self._show_neighb_plates()
-
+        
 
     def _show_neighb_plates(self):
         x, y = self.player_index
