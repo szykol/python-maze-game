@@ -4,6 +4,7 @@ import numpy as np
 
 from plate import Plate
 from player import Player
+from threading import Timer
 
 def spawn_simple_maze():
     plates = np.empty((8, 8), dtype=Plate)
@@ -58,7 +59,7 @@ class Game:
             self.update()
             self.draw()
 
-            self.clock.tick(10)
+            self.clock.tick(60)
 
     def _setup(self):
         self.player_index = (0, 1)
@@ -71,32 +72,34 @@ class Game:
         self.all_sprites.add(self.player)
 
         self._show_neighb_plates()
+        self._enable_move()
 
     def _handle_keys(self):
         keys = pygame.key.get_pressed()
         
         next_move = None
+        direction = None
         if keys[pygame.K_q]:
             self.done = True
         elif keys[pygame.K_RIGHT]:
             next_move = (self.player_index[0] + 1, self.player_index[1])
-            self.player.direction = Player.RIGHT
+            direction = Player.RIGHT
         elif keys[pygame.K_DOWN]:
             next_move = (self.player_index[0], self.player_index[1] + 1)
-            self.player.direction = Player.DOWN
+            direction = Player.DOWN
         elif keys[pygame.K_LEFT]:
             next_move = (self.player_index[0] - 1, self.player_index[1])
-            self.player.direction = Player.LEFT
+            direction = Player.LEFT
         elif keys[pygame.K_UP]:
             next_move = (self.player_index[0], self.player_index[1] - 1)
-            self.player.direction = Player.UP
+            direction = Player.UP
 
         if next_move is not None:
-            self._move_player(next_move)
+            self._move_player(next_move, direction)
 
 
-    def _move_player(self, next_pos):
-        if (next_pos[0] < 0 or next_pos[0] >= self.plates.shape[0]
+    def _move_player(self, next_pos, direction):
+        if not self.can_move or (next_pos[0] < 0 or next_pos[0] >= self.plates.shape[0]
             or next_pos[1] < 0 or next_pos[1] >= self.plates.shape[1]):
             return
 
@@ -104,7 +107,14 @@ class Game:
             self.player_index = next_pos
             self.player.rect.center = self.plates[self.player_index].rect.center
             self._show_neighb_plates()
+            self.player.direction = direction
+            
+            self.can_move = False
+            Timer(0.25, self._enable_move).start()
+
         
+    def _enable_move(self):
+        self.can_move = True
 
     def _show_neighb_plates(self):
         x, y = self.player_index
@@ -120,3 +130,4 @@ if __name__ == "__main__":
     
     g = Game()
     g.run()
+
