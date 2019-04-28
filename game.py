@@ -29,17 +29,14 @@ class Game:
     def __init__(self):
         self.clock = pygame.time.Clock()
         self.done = False
-
-        self.plates = spawn_simple_maze()
-        self.player_index = (0, 1)
-        self.player = Player(self.plates[self.player_index].rect.center)
-        
         self.screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
+        self.plates = spawn_simple_maze()
+        
         self.all_sprites = pygame.sprite.Group()
         self.all_sprites.add(self.plates)
-        self.all_sprites.add(self.player)
-        self._show_neighb_plates()
-
+        self._setup()
+        
+        
     def draw(self):
         self.screen.fill((0,0,0))
         self.all_sprites.draw(self.screen)
@@ -47,6 +44,10 @@ class Game:
 
     def update(self):
         self._handle_keys()
+
+        if self.player_index == self.end_index:
+            print('Win!')
+            self._setup()
         
     def run(self):
         while not self.done:
@@ -58,6 +59,18 @@ class Game:
             self.draw()
 
             self.clock.tick(10)
+
+    def _setup(self):
+        self.player_index = (0, 1)
+        self.end_index = (1,7)
+
+        if hasattr(self, 'player'):
+            self.all_sprites.remove(self.player)
+            
+        self.player = Player(self.plates[self.player_index].rect.center)
+        self.all_sprites.add(self.player)
+
+        self._show_neighb_plates()
 
     def _handle_keys(self):
         keys = pygame.key.get_pressed()
