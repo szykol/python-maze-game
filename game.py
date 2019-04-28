@@ -31,13 +31,14 @@ class Game:
         self.done = False
 
         self.plates = spawn_simple_maze()
-        self.player_index = (7, 1)
+        self.player_index = (0, 1)
         self.player = Player(self.plates[self.player_index].rect.center)
         
         self.screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
         self.all_sprites = pygame.sprite.Group()
         self.all_sprites.add(self.plates)
         self.all_sprites.add(self.player)
+        self._show_neighb_plates()
 
     def draw(self):
         self.screen.fill((0,0,0))
@@ -47,8 +48,6 @@ class Game:
     def update(self):
         self._handle_keys()
         
-        self._show_neighb_plates()
-
     def run(self):
         while not self.done:
             for event in pygame.event.get():
@@ -62,25 +61,28 @@ class Game:
 
     def _handle_keys(self):
         keys = pygame.key.get_pressed()
+        
+        update_pos = True
         if keys[pygame.K_q]:
             self.done = True
-
-        if keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_RIGHT]:
             self.player_index = self.player_index[0] + 1, self.player_index[1]
             self.player.direction = Player.RIGHT
-        if keys[pygame.K_DOWN]:
+        elif keys[pygame.K_DOWN]:
             self.player_index = self.player_index[0], self.player_index[1] + 1
             self.player.direction = Player.DOWN
-        if keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT]:
             self.player_index = self.player_index[0] - 1, self.player_index[1]
             self.player.direction = Player.LEFT
-        if keys[pygame.K_UP]:
+        elif keys[pygame.K_UP]:
             self.player_index = self.player_index[0], self.player_index[1] - 1
             self.player.direction = Player.UP
+        else:
+            update_pos = False
 
-
-        self.player.rect.center = self.plates[self.player_index].rect.center
-
+        if update_pos:
+            self.player.rect.center = self.plates[self.player_index].rect.center
+            self._show_neighb_plates()
 
 
     def _show_neighb_plates(self):
