@@ -180,7 +180,7 @@ class Game:
         for i in range(4):
             # print(indices[i])
             pos_x, pos_y = indices[i]
-            if pos_x > 0 and pos_x <= self.plates.shape[0] and pos_y > 0 and pos_y <= self.plates.shape[1]:
+            if pos_x > 0 and pos_x < self.plates.shape[0] and pos_y > 0 and pos_y < self.plates.shape[1]:
                 if self.plates[pos_x, pos_y].type == Plate.YELLOW:
                     if prev_pos is not None and (pos_x, pos_y) != prev_pos:
                         directions.append(i)
