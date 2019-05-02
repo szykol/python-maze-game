@@ -26,12 +26,32 @@ def spawn_simple_maze(pos):
 
     return plates
 
+def load_plates(path, pos):
+    # for now they are hardcoded
+    SIZE_X = 18
+    SIZE_Y = 10
+
+    plates = np.empty((SIZE_X, SIZE_Y), dtype=Plate)
+    with open(path, 'r') as f:
+        y = 0
+        for line in f:
+            raw_plates = line.split(' ')
+            print(raw_plates)
+            for x in range(len(raw_plates)):
+                plate_type = int(raw_plates[x].strip())
+                print(plate_type)
+                t = Plate.ROCK if plate_type == 0 else Plate.YELLOW
+                plates[x, y] = Plate((x * Plate.SIZE[0] + pos[0], y * Plate.SIZE[1] + pos[1]), type=t)
+            y += 1
+
+    return plates
+
 class Game:
     def __init__(self):
         self.clock = pygame.time.Clock()
         self.done = False
         self.screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
-        self.plates = spawn_simple_maze((400, 200))
+        self.plates = load_plates('level1', (400, 200))
 
         background = pygame.sprite.Sprite()
         background.image = pygame.image.load('img/maze.png')
@@ -68,7 +88,7 @@ class Game:
 
     def _setup(self):
         self.player_index = (0, 1)
-        self.end_index = (1,7)
+        self.end_index = (16,9)
         self.forks = []
         self.visited_forks = []
 
@@ -160,7 +180,7 @@ class Game:
         for i in range(4):
             # print(indices[i])
             pos_x, pos_y = indices[i]
-            if pos_x > 0 and pos_x <= 7 and pos_y > 0 and pos_y <= 7:
+            if pos_x > 0 and pos_x <= self.plates.shape[0] and pos_y > 0 and pos_y <= self.plates.shape[1]:
                 if self.plates[pos_x, pos_y].type == Plate.YELLOW:
                     if prev_pos is not None and (pos_x, pos_y) != prev_pos:
                         directions.append(i)
@@ -182,6 +202,7 @@ class Game:
 
 
 if __name__ == "__main__":
+    # print(load_plates('level1', (10, 10)))
     pygame.init()
     
     g = Game()
