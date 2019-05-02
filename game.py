@@ -1,55 +1,47 @@
 import pygame
 import random
+import json
+
 import numpy as np
 
 from plate import Plate
 from player import Player
 from threading import Timer
 
-def spawn_simple_maze(pos):
-    plates = np.empty((8, 8), dtype=Plate)
-    yellow = [
-        (0, 1), (1,1), (2,1), (3,1), (4, 1), (6,1),
-        (3, 2), (6, 2),
-        (1, 3), (2, 3), (3, 3), (4, 3), (5, 3), (6, 3),
-        (2, 4), (4, 4),
-        (1, 5), (2, 5), (4, 5), (5, 5), (6, 5),
-        (1, 6), (4, 6),
-        (1, 7)
-    ]
-    for y in range(plates.shape[1]):
-        for x in range(plates.shape[0]):
-            t = Plate.ROCK
-            if (x, y) in yellow:
-                t = Plate.YELLOW
-            plates[x, y] = Plate((x * Plate.SIZE[0] + pos[0], y * Plate.SIZE[1] + pos[1]), type=t)
-
-    return plates
-
-def load_plates(path, pos):
-    # for now they are hardcoded
-    SIZE_X = 18
-    SIZE_Y = 10
-
-    plates = np.empty((SIZE_X, SIZE_Y), dtype=Plate)
+def load_random_level(path, pos):
     with open(path, 'r') as f:
+        levels = json.load(f)
+
+        r = random.randrange(len(levels))
+        lvl_obj = levels[r]
+
+        raw_plates = np.array(lvl_obj['plates'])
+        start = tuple(lvl_obj['start'])
+        end = tuple(lvl_obj['end'])
+
+        plates = np.empty((raw_plates.shape[1], raw_plates.shape[0]), dtype=Plate)
         y = 0
-        for line in f:
-            raw_plates = line.split(' ')
-            for x in range(len(raw_plates)):
-                plate_type = int(raw_plates[x].strip())
+        for row in raw_plates:
+            for x in range(len(row)):
+                plate_type = row[x]
                 t = Plate.ROCK if plate_type == 0 else Plate.YELLOW
                 plates[x, y] = Plate((x * Plate.SIZE[0] + pos[0], y * Plate.SIZE[1] + pos[1]), type=t)
             y += 1
 
-    return plates
+        return {
+            "plates": plates,
+            "start": start,
+            "end": end
+        }
 
 class Game:
     def __init__(self):
         self.clock = pygame.time.Clock()
         self.done = False
         self.screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
-        self.plates = load_plates('level1', (400, 200))
+        
+        self.level = load_random_level('levels.json', (400, 200))
+        self.plates = self.level['plates']
 
         background = pygame.sprite.Sprite()
         background.image = pygame.image.load('img/maze.png')
@@ -85,8 +77,9 @@ class Game:
             self.clock.tick(60)
 
     def _setup(self):
-        self.player_index = (0, 1)
-        self.end_index = (16,9)
+        self.player_index = self.level['start']
+        self.end_index = self.level['end']
+
         self.forks = []
         self.visited_forks = []
 
@@ -195,7 +188,7 @@ class Game:
 
 
 if __name__ == "__main__":
-    # print(load_plates('level1', (10, 10)))
+    # print(load_random_level('level1', (10, 10)))
     pygame.init()
     
     g = Game()
