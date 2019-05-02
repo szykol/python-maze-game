@@ -36,10 +36,8 @@ def load_plates(path, pos):
         y = 0
         for line in f:
             raw_plates = line.split(' ')
-            print(raw_plates)
             for x in range(len(raw_plates)):
                 plate_type = int(raw_plates[x].strip())
-                print(plate_type)
                 t = Plate.ROCK if plate_type == 0 else Plate.YELLOW
                 plates[x, y] = Plate((x * Plate.SIZE[0] + pos[0], y * Plate.SIZE[1] + pos[1]), type=t)
             y += 1
@@ -134,18 +132,14 @@ class Game:
         if self.plates[next_pos].type == Plate.YELLOW:
             # if player_index is the newest fork index
             if self.forks and self.player_index == self.forks[-1]['index']:
-                print(self.forks)
                 # if direction is the same as fork's current direction
                 if direction == self.forks[-1]['directions'][0]:
                     # pop direction when the movement is correct
-                    print(self.forks[-1]['directions'])
                     self.forks[-1]['directions'].pop(0)
-                    print(self.forks[-1]['directions'])
 
                     # if there's no more directions - pop the current fork
                     if not self.forks[-1]['directions']:
                         self.forks.pop()
-                        print(self.forks)
                 else:
                     self._setup()
                     return
@@ -194,7 +188,6 @@ class Game:
                 'directions': directions
             })
             self.visited_forks.append((x,y))
-            print('Appending')
         else:
             self.no_move = True
 
