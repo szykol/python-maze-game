@@ -122,6 +122,10 @@ class Game:
             or next_pos[1] < 0 or next_pos[1] >= self.plates.shape[1]):
             return
 
+        if not self._should_return and next_pos == self.forks[-1]['index']:
+            self._setup()
+            return
+
         if self.plates[next_pos].type == Plate.YELLOW:
             # if player_index is the newest fork index
             if self.forks and self.player_index == self.forks[-1]['index']:
@@ -165,15 +169,11 @@ class Game:
         indices = [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)]
         directions = []
         for i in range(4):
-            # print(indices[i])
             pos_x, pos_y = indices[i]
             if pos_x > 0 and pos_x < self.plates.shape[0] and pos_y > 0 and pos_y < self.plates.shape[1]:
                 if self.plates[pos_x, pos_y].type == Plate.YELLOW:
                     if prev_pos is not None and (pos_x, pos_y) != prev_pos:
                         directions.append(i)
-                    # print('App')
-                    # print(indices[i])
-                    # print(directions)
 
         if len(directions) > 1 and not (x,y) in self.visited_forks:
             self.forks.append({
@@ -181,14 +181,11 @@ class Game:
                 'directions': directions
             })
             self.visited_forks.append((x,y))
-        else:
-            self.no_move = True
-
-
-
+            self._should_return = False
+        elif len(directions) == 0:
+            self._should_return = True
 
 if __name__ == "__main__":
-    # print(load_random_level('level1', (10, 10)))
     pygame.init()
     
     g = Game()
