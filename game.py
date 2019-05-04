@@ -82,6 +82,8 @@ class Game:
 
         self.forks = []
         self.visited_forks = []
+        self.steps = []
+        self._pop_steps = False
 
         if hasattr(self, 'player'):
             self.all_sprites.remove(self.player)
@@ -122,15 +124,12 @@ class Game:
             or next_pos[1] < 0 or next_pos[1] >= self.plates.shape[1]):
             return
 
-        if not self._should_return and next_pos == self.forks[-1]['index']:
-            self._setup()
-            return
-
         if self.plates[next_pos].type == Plate.YELLOW:
             # if player_index is the newest fork index
             if self.forks and self.player_index == self.forks[-1]['index']:
                 # if direction is the same as fork's current direction
                 if direction == self.forks[-1]['directions'][0]:
+                    self._pop_steps = False
                     # pop direction when the movement is correct
                     self.forks[-1]['directions'].pop(0)
 
@@ -142,6 +141,17 @@ class Game:
                     return
 
             prev_pos = self.player_index
+            
+            print(self._pop_steps)
+            if self.steps and next_pos == self.steps[-1]:
+                if self._pop_steps:
+                    self.steps.pop()
+                else:
+                    self._setup()
+                    return
+            elif not self._pop_steps:
+                self.steps.append(prev_pos)
+            
             self.player_index = next_pos
             self.player.rect.center = self.plates[self.player_index].rect.center
             self._show_neighb_plates()
@@ -181,9 +191,11 @@ class Game:
                 'directions': directions
             })
             self.visited_forks.append((x,y))
-            self._should_return = False
         elif len(directions) == 0:
-            self._should_return = True
+            self._pop_steps = True
+
+        if prev_pos is None:
+            self._pop_steps = False
 
 if __name__ == "__main__":
     pygame.init()
