@@ -3,7 +3,7 @@ import pygame
 class Player(pygame.sprite.Sprite):
     RIGHT, DOWN, LEFT, UP = 0, 1, 2, 3
     def __init__(self, center):
-        self.direction = Player.RIGHT
+        self.direction = Player.UP
         self.rect.center = center
         pygame.sprite.Sprite.__init__(self)
 
