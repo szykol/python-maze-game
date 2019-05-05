@@ -159,7 +159,7 @@ class Game:
             self.player.direction = direction
 
             self.can_move = False
-            Timer(0.25, self._enable_move).start()
+            Timer(0.15, self._enable_move).start()
 
         
     def _enable_move(self):
