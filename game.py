@@ -142,7 +142,6 @@ class Game:
 
             prev_pos = self.player_index
             
-            print(self._pop_steps)
             if self.steps and next_pos == self.steps[-1]:
                 if self._pop_steps:
                     self.steps.pop()
