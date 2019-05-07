@@ -38,7 +38,7 @@ class Game:
     def __init__(self):
         self.clock = pygame.time.Clock()
         self.done = False
-        self.screen = pygame.display.set_mode((1920, 1080))#, pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
         
         self.level = load_random_level('levels.json', (400, 200))
         self.plates = self.level['plates']
