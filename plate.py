@@ -5,6 +5,12 @@ class Plate(pygame.sprite.Sprite):
     YELLOW = 'yellow.png'
     ROCK = 'rock.png'
 
+    IMAGES = {
+        BLACK: pygame.image.load('img/' + BLACK),
+        YELLOW: pygame.image.load('img/' + YELLOW),
+        ROCK: pygame.image.load('img/' + ROCK)
+    }
+
     SIZE = (60,60)
     def __init__(self, position, type=ROCK, visible=False):
         self.type = type
@@ -18,12 +24,12 @@ class Plate(pygame.sprite.Sprite):
     
     @visible.setter
     def visible(self, v):
-        image_path = 'img/'
+        display = None
         if v:
-            image_path += self.type
+            display = self.type
         else:
-            image_path += Plate.BLACK
+            display = Plate.BLACK
 
-        self.image = pygame.image.load(image_path)
+        self.image = Plate.IMAGES[display]
         if not hasattr(self, 'rect'):
             self.rect = self.image.get_rect()
