@@ -63,6 +63,11 @@ class Game:
 
         if self.player_index == self.end_index:
             print('Win!')
+            self.level = load_random_level('levels.json', (400, 200))
+            self.all_sprites.remove(self.plates)
+            self.plates = self.level['plates']
+            self.all_sprites.add(self.plates)
+            self._hide_maze()
             self._setup()
         
     def run(self):
@@ -79,6 +84,7 @@ class Game:
     def _setup(self):
         self.player_index = self.level['start']
         self.end_index = self.level['end']
+        
 
         self._hide_maze()
 
