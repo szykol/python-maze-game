@@ -80,6 +80,8 @@ class Game:
         self.player_index = self.level['start']
         self.end_index = self.level['end']
 
+        self._hide_maze()
+
         self.forks = []
         self.visited_forks = []
         self.steps = []
@@ -160,6 +162,10 @@ class Game:
             self.can_move = False
             Timer(0.15, self._enable_move).start()
 
+    def _hide_maze(self):
+        for x in range(self.plates.shape[0]):
+            for y in range(self.plates.shape[1]):
+                self.plates[x,y].visible = False
         
     def _enable_move(self):
         self.can_move = True
